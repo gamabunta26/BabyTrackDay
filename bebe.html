@@ -47,19 +47,24 @@
 
   <div class="section">
     <label>Heure de levée : <input type="time" id="wake"></label><br>
-    <label>Heure du biberon : <input type="time" id="bottle"></label> <label>Quantité bue (ml) : <input type="number" id="ml" min="30" max="300" step="30" value="210"></label>
+  </div>
+
+  <div class="section">
+    <h3>Biberon</h3>
+    <div id="bottle-list"></div>
+    <button onclick="addBottle()">Ajouter un biberon</button>
   </div>
 
   <div class="section">
     <h3>Changements de couche</h3>
     <div id="diaper-list"></div>
-    <button onclick="addDiaper()">Ajouter</button>
+    <button onclick="addDiaper()">Ajouter un change</button>
   </div>
 
   <div class="section">
     <h3>Siestes</h3>
     <div id="nap-list"></div>
-    <button onclick="addNap()">Ajouter</button>
+    <button onclick="addNap()">Ajouter une sieste</button>
   </div>
 
   <div class="section">
@@ -94,11 +99,23 @@
     <h3>Résumé de la journée</h3>
     <p id="day-summary"></p>
   </div>
-
+  
   <script>
+    const bottleList = document.getElementById('bottle-list');
     const diaperList = document.getElementById('diaper-list');
     const napList = document.getElementById('nap-list');
     const mealList = document.getElementById('meal-list');
+
+    
+    // Ajoute une entrée pour un biberon dans la liste
+    function addBottle(time = '', ml = 210) {
+      const div = document.createElement('div');
+      div.className = 'entry';
+      div.innerHTML = `<input type="time" value="${time}">
+        <input type="number" min="0" step="30" value="${ml}" style="width: 60px;"> ml
+        <button onclick="this.parentNode.remove()">Suppr</button>`;
+      bottleList.appendChild(div);
+    }
 
     // Ajoute une entrée pour un changement de couche dans la liste
     function addDiaper(time = '', poop = false) {
@@ -106,7 +123,7 @@
       container.className = 'entry';
       container.innerHTML = `
         <input type="time" value="${time}">
-        <label><input type="checkbox" ${poop ? 'checked' : ''}> Caca</label>
+        <label><input type="checkbox" ${poop ? 'checked' : ''}> 💩</label>
         <button onclick="this.parentElement.remove()">Supprimer</button>`;
       diaperList.appendChild(container);
     }
@@ -137,10 +154,16 @@
     function encodeData() {
       const d = document.getElementById('date').value;
       const w = document.getElementById('wake').value;
-      const b = document.getElementById('bottle').value;
-      const ml = document.getElementById('ml').value;
       const q = document.getElementById('dayQuality').value;
       const c = document.getElementById('comment').value;
+
+      const bottles = Array.from(bottleList.children).map(entry => {
+        const inputs = entry.querySelectorAll('input');
+        return {
+          time: inputs[0].value,
+          ml: inputs[1].value
+        };
+      });
 
       const diapers = Array.from(diaperList.children).map(entry => {
         const inputs = entry.querySelectorAll('input');
@@ -167,7 +190,7 @@
         };
       });
 
-      const obj = { d, w, b, ml, q, c, diapers, naps, meals };
+      const obj = { d, w, q, c, bottles, diapers, naps, meals };
       return btoa(JSON.stringify(obj));
     }
 
@@ -175,6 +198,15 @@
     function generateLink() {
       const hash = encodeData();
       const url = location.origin + location.pathname + '#' + hash;
+
+      // Récupère la date du jour
+      const date = document.getElementById('date').value;
+
+      // Sauvegarde les données dans le localStorage avec la date comme clé
+      if (date) {
+        localStorage.setItem(`babyTrackData_${date}`, hash);
+      }
+
       const link = document.getElementById('generatedLink');
       link.href = url;
       link.textContent = url;
@@ -211,10 +243,8 @@
     <div style="font-size: 18px; line-height: 1.6;">
       <strong>Changements de couche :</strong><br>
       ${diapers.length > 0 ? diapers.join('<br>') : '<em>Aucun</em>'}<br><br>
-
       <strong>Siestes :</strong><br>
       ${naps.length > 0 ? naps.join('<br>') : '<em>Aucune</em>'}<br><br>
-
       <strong>Repas solides :</strong><br>
       ${meals.length > 0 ? meals.join('<br>') : '<em>Aucune</em>'}
     </div>
@@ -234,17 +264,47 @@
       }
     }
 
-    // Charge les données depuis l'URL et les insère dans le formulaire
-    function loadFromHash() {
-      const data = decodeData();
+    // Charge les données depuis le localStorage ou le hash et les insère dans le formulaire
+    function loadData() {
+      let data = null;
+
+      // Récupère la date du jour
+      const dateInput = document.getElementById('date');
+      const today = dateInput.value || new Date().toISOString().split('T')[0];
+
+      // Priorité 1 : Charger depuis le localStorage pour la date du jour
+      const storedData = localStorage.getItem(`babyTrackData_${today}`);
+      if (storedData) {
+        try {
+          data = JSON.parse(atob(storedData));
+        } catch (e) {
+          console.error("Erreur de décodage des données du localStorage", e);
+        }
+      }
+
+      // Priorité 2 : Charger depuis le hash si aucune donnée valide dans le localStorage
+      if (!data && location.hash) {
+        try {
+          const json = atob(location.hash.slice(1));
+          data = JSON.parse(json);
+        } catch (e) {
+          console.error("Erreur de décodage des données du hash", e);
+        }
+      }
+
+      // Si aucune donnée valide, ne rien faire
       if (!data) return;
 
-      document.getElementById('date').value = data.d || '';
+      // Remplir le formulaire avec les données chargées
+      document.getElementById('date').value = data.d || today;
       document.getElementById('wake').value = data.w || '';
-      document.getElementById('bottle').value = data.b || '';
-      document.getElementById('ml').value = data.ml || 210;
       document.getElementById('dayQuality').value = data.q || '';
       document.getElementById('comment').value = data.c || '';
+
+      bottleList.innerHTML = '';
+      (data.bottles || []).forEach(b => {
+        addBottle(b.time, b.ml);
+      });
 
       diaperList.innerHTML = '';
       (data.diapers || []).forEach(d => {
@@ -262,17 +322,16 @@
       });
     }
 
-    // Initialise la page en chargeant les données depuis l'URL ou en définissant la date actuelle
+    // Initialise la page en chargeant les données depuis le localStorage ou le hash
     window.onload = () => {
       const dateInput = document.getElementById('date');
-      if (!location.hash && !dateInput.value) {
-        const today = new Date();
-        dateInput.value = today.toISOString().split('T')[0];
+      if (!dateInput.value) {
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.value = today;
       }
-      loadFromHash();
+      loadData();
       updateDaySummary();
     };
-
   </script>
 </body>
 
