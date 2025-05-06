@@ -43,14 +43,14 @@
 
 <body>
   <h1>Suivi bébé<br>Du <input type="date" id="date"></h1><br>
-  
+
 
   <div class="section">
     <label>Heure de levée : <input type="time" id="wake"></label><br>
   </div>
 
   <div class="section">
-    <h3>Biberon</h3>
+    <h3>Biberon - Total : <span id="bottle-total">0</span> ml</h3>
     <div id="bottle-list"></div>
     <button onclick="addBottle()">Ajouter un biberon</button>
   </div>
@@ -62,7 +62,7 @@
   </div>
 
   <div class="section">
-    <h3>Siestes</h3>
+    <h3>Siestes - Total : <span id="nap-total">0</span> heures</h3>
     <div id="nap-list"></div>
     <button onclick="addNap()">Ajouter une sieste</button>
   </div>
@@ -106,7 +106,17 @@
     const napList = document.getElementById('nap-list');
     const mealList = document.getElementById('meal-list');
 
-    
+
+    // Met à jour le total des biberons
+    function updateBottleTotal() {
+      const total = Array.from(bottleList.children).reduce((sum, entry) => {
+        const mlInput = entry.querySelector('input[type="number"]');
+        return sum + (parseInt(mlInput.value) || 0);
+      }, 0);
+      document.getElementById('bottle-total').textContent = total;
+    }
+
+
     // Ajoute une entrée pour un biberon dans la liste
     function addBottle(time = '', ml = 210) {
       const div = document.createElement('div');
@@ -115,6 +125,7 @@
         <input type="number" min="0" step="30" value="${ml}" style="width: 60px;"> ml
         <button onclick="this.parentNode.remove()">Suppr</button>`;
       bottleList.appendChild(div);
+      updateBottleTotal();
     }
 
     // Ajoute une entrée pour un changement de couche dans la liste
@@ -128,15 +139,36 @@
       diaperList.appendChild(container);
     }
 
+    
     // Ajoute une entrée pour une sieste dans la liste
     function addNap(start = '', end = '') {
       const container = document.createElement('div');
       container.className = 'entry';
       container.innerHTML = `
-        <input type="time" value="${start}"> - 
-        <input type="time" value="${end}">
-        <button onclick="this.parentElement.remove()">Supprimer</button>`;
+        <input type="time" value="${start}" onchange="updateNapTotal()"> - 
+        <input type="time" value="${end}" onchange="updateNapTotal()">
+        <button onclick="this.parentElement.remove(); updateNapTotal()">Supprimer</button>`;
       napList.appendChild(container);
+      updateNapTotal();
+    }
+
+    // Met à jour le total des siestes
+    function updateNapTotal() {
+      const total = Array.from(napList.children).reduce((sum, entry) => {
+        const inputs = entry.querySelectorAll('input[type="time"]');
+        const start = inputs[0].value;
+        const end = inputs[1].value;
+
+        if (start && end) {
+          const startTime = new Date(`1970-01-01T${start}:00`);
+          const endTime = new Date(`1970-01-01T${end}:00`);
+          const duration = (endTime - startTime) / (1000 * 60 * 60); // Convertir en heures
+          return sum + (duration > 0 ? duration : 0); // Ajouter uniquement les durées positives
+        }
+        return sum;
+      }, 0);
+
+      document.getElementById('nap-total').textContent = total.toFixed(2); // Afficher avec 2 décimales
     }
 
     // Ajoute une entrée pour un repas solide dans la liste
@@ -310,6 +342,7 @@
       (data.bottles || []).forEach(b => {
         addBottle(b.time, b.ml);
       });
+      updateBottleTotal(); // Met à jour le total après le chargement des données
 
       diaperList.innerHTML = '';
       (data.diapers || []).forEach(d => {
@@ -320,6 +353,7 @@
       (data.naps || []).forEach(n => {
         addNap(n.start, n.end);
       });
+      updateNapTotal(); // Met à jour le total après le chargement des données
 
       mealList.innerHTML = '';
       (data.meals || []).forEach(m => {
