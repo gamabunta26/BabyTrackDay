@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Suivi bébé</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .section {
+      margin-bottom: 20px;
+    }
+
+    .entry {
+      margin: 5px 0;
+    }
+
+    .inline {
+      display: inline-block;
+      margin-right: 10px;
+    }
+
+    .entry button {
+      margin-left: 5px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 80px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Suivi bébé</h1>
+
+  <div class="section">
+    <label>Date : <input type="date" id="date"></label><br>
+    <label>Heure de levée : <input type="time" id="wake"></label><br>
+    <label>Heure du biberon : <input type="time" id="bottle"></label><br>
+    <label>Quantité bue (ml) : <input type="number" id="ml" min="30" max="300" step="30" value="210"></label>
+  </div>
+
+  <div class="section">
+    <h3>Changements de couche</h3>
+    <div id="diaper-list"></div>
+    <button onclick="addDiaper()">Ajouter</button>
+  </div>
+
+  <div class="section">
+    <h3>Siestes</h3>
+    <div id="nap-list"></div>
+    <button onclick="addNap()">Ajouter</button>
+  </div>
+
+  <div class="section">
+    <strong>Repas solides :</strong>
+    <div id="meal-list"></div>
+    <button onclick="addMeal()">Ajouter un repas</button>
+  </div>
+
+  <div class="section">
+    <h3>Qualité de la journée</h3>
+    <label>
+      <select id="dayQuality">
+        <option value="">-- Sélectionner --</option>
+        <option value="1">😣 Difficile</option>
+        <option value="2">😐 Moyenne</option>
+        <option value="3">😊 Bonne</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="section">
+    <h3>Commentaire</h3>
+    <textarea id="comment" placeholder="Notes ou remarques..."></textarea>
+  </div>
+
+  <div class="section">
+    <button onclick="generateLink()">Générer le lien</button>
+    <p><a id="generatedLink" href="#" target="_blank"></a></p>
+  </div>
+
+  <div class="section">
+    <h3>Résumé de la journée</h3>
+    <p id="day-summary"></p>
+  </div>
+
+  <script>
+    const diaperList = document.getElementById('diaper-list');
+    const napList = document.getElementById('nap-list');
+    const mealList = document.getElementById('meal-list');
+
+    function addDiaper(time = '', poop = false) {
+      const container = document.createElement('div');
+      container.className = 'entry';
+      container.innerHTML = `
+        <input type="time" value="${time}">
+        <label><input type="checkbox" ${poop ? 'checked' : ''}> Caca</label>
+        <button onclick="this.parentElement.remove()">Supprimer</button>`;
+      diaperList.appendChild(container);
+    }
+
+    function addNap(start = '', end = '') {
+      const container = document.createElement('div');
+      container.className = 'entry';
+      container.innerHTML = `
+        <input type="time" value="${start}"> - 
+        <input type="time" value="${end}">
+        <button onclick="this.parentElement.remove()">Supprimer</button>`;
+      napList.appendChild(container);
+    }
+
+    function addMeal(time = '', type = '', g = 0) {
+      const div = document.createElement('div');
+      div.className = 'entry';
+      div.innerHTML = `<input type="time" value="${time}">
+        <input type="text" placeholder="Type (purée...)" value="${type}">
+        <input type="number" min="0" step="10" value="${g}" style="width: 60px;"> g
+        <button onclick="this.parentNode.remove()">Suppr</button>`;
+      mealList.appendChild(div);
+    }
+
+    function encodeData() {
+      const d = document.getElementById('date').value;
+      const w = document.getElementById('wake').value;
+      const b = document.getElementById('bottle').value;
+      const ml = document.getElementById('ml').value;
+      const q = document.getElementById('dayQuality').value;
+      const c = document.getElementById('comment').value;
+
+      const diapers = Array.from(diaperList.children).map(entry => {
+        const inputs = entry.querySelectorAll('input');
+        return {
+          time: inputs[0].value,
+          poop: inputs[1].checked
+        };
+      });
+
+      const naps = Array.from(napList.children).map(entry => {
+        const inputs = entry.querySelectorAll('input');
+        return {
+          start: inputs[0].value,
+          end: inputs[1].value
+        };
+      });
+
+      const meals = Array.from(mealList.children).map(entry => {
+        const inputs = entry.querySelectorAll('input');
+        return {
+          time: inputs[0].value,
+          type: inputs[1].value,
+          weight: inputs[2].value
+        };
+      });
+
+
+      const obj = { d, w, b, ml, q, c, diapers, naps, meals };
+      return btoa(JSON.stringify(obj));
+    }
+
+
+    function generateLink() {
+      const hash = encodeData();
+      const url = location.origin + location.pathname + '#' + hash;
+      const link = document.getElementById('generatedLink');
+      link.href = url;
+      link.textContent = url;
+
+      updateDaySummary();
+    }
+
+
+    function updateDaySummary() {
+      const date = document.getElementById('date').value;
+      const wake = document.getElementById('wake').value;
+      const bottle = document.getElementById('bottle').value;
+      const ml = document.getElementById('ml').value;
+      const quality = document.getElementById('dayQuality').value;
+      const qualityText = quality === '1' ? '😣 Difficile' : quality === '2' ? '😐 Moyenne' : quality === '3' ? '😊 Bonne' : 'Non défini';
+      const comment = document.getElementById('comment').value;
+
+      const diapers = Array.from(diaperList.children).map(entry => {
+        const inputs = entry.querySelectorAll('input');
+        return `<strong>${inputs[0].value}</strong>` + (inputs[1].checked ? ' <span style="color: red;">(avec caca)</span>' : '');
+      });
+
+      const naps = Array.from(napList.children).map(entry => {
+        const inputs = entry.querySelectorAll('input');
+        return `<strong>${inputs[0].value}</strong> - <strong>${inputs[1].value || 'Non définie'}</strong>`;
+      });
+
+      const meals = Array.from(mealList.children).map(entry => {
+        const inputs = entry.querySelectorAll('input');
+        return `<strong>${inputs[0].value}</strong> - <strong>${inputs[1].value || 'Non définie'}</strong> - <strong>${inputs[2].value || 'Non définie'}g</strong>`;
+      });
+
+      const summary = `
+    <div style="font-size: 18px; line-height: 1.6;">
+      <!-- <strong>Date :</strong> ${date}<br>  -->
+      <!-- <strong>Heure de levée :</strong> ${wake || 'Non définie'}<br> -->
+      <!-- <strong>Heure du biberon :</strong> ${bottle || 'Non définie'}<br> -->
+      <!-- <strong>Quantité bue :</strong> ${ml} ml<br>   -->
+      <!-- <strong>Qualité de la journée :</strong> ${qualityText}<br>    -->
+      <!-- <strong>Commentaire :</strong> ${comment || 'Aucun'}<br><br> -->
+      
+      <strong>Changements de couche :</strong><br>
+      ${diapers.length > 0 ? diapers.join('<br>') : '<em>Aucun</em>'}<br><br>
+
+      <strong>Siestes :</strong><br>
+      ${naps.length > 0 ? naps.join('<br>') : '<em>Aucune</em>'}<br><br>
+
+      <strong>Repas solides :</strong><br>
+      ${meals.length > 0 ? meals.join('<br>') : '<em>Aucune</em>'}
+      
+
+    </div>
+  `;
+      document.getElementById('day-summary').innerHTML = summary;
+    }
+
+
+    function decodeData() {
+      if (!location.hash) return null;
+      try {
+        const json = atob(location.hash.slice(1));
+        return JSON.parse(json);
+      } catch (e) {
+        console.error("Erreur de décodage", e);
+        return null;
+      }
+    }
+
+
+
+    function loadFromHash() {
+      const data = decodeData();
+      if (!data) return;
+
+      document.getElementById('date').value = data.d || '';
+      document.getElementById('wake').value = data.w || '';
+      document.getElementById('bottle').value = data.b || '';
+      document.getElementById('ml').value = data.ml || 210;
+      document.getElementById('dayQuality').value = data.q || '';
+      document.getElementById('comment').value = data.c || '';
+
+      diaperList.innerHTML = '';
+      (data.diapers || []).forEach(d => {
+        addDiaper(d.time, d.poop);
+      });
+
+      napList.innerHTML = '';
+      (data.naps || []).forEach(n => {
+        addNap(n.start, n.end);
+      });
+
+      mealList.innerHTML = '';
+      (data.meals || []).forEach(m => {
+        addMeal(m.time, m.type, m.weight);
+      });
+    }
+
+    window.onload = () => {
+      const dateInput = document.getElementById('date');
+      if (!location.hash && !dateInput.value) {
+        const today = new Date();
+        dateInput.value = today.toISOString().split('T')[0];
+      }
+      loadFromHash();
+      updateDaySummary();
+    };
+
+  </script>
+</body>
+
+</html>
