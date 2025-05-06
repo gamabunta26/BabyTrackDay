@@ -42,7 +42,7 @@
 </head>
 
 <body>
-  <h1>Suivi bébé<br>Du <input type="date" id="date"></h1><br>
+  <h1>Suivi bébé<br>Du <input type="date" id="date" onchange="loadDataAnotherDay()"></h1><br>
 
 
   <div class="section">
@@ -303,6 +303,66 @@
 
     // Charge les données depuis le localStorage ou le hash et les insère dans le formulaire
     function loadData() {
+      let data = null;
+
+      // Récupère la date du jour
+      const dateInput = document.getElementById('date');
+      const today = dateInput.value || new Date().toISOString().split('T')[0];
+
+      // Priorité 1 : Charger depuis le localStorage pour la date du jour
+      const storedData = localStorage.getItem(`babyTrackData_${today}`);
+      if (storedData) {
+        try {
+          data = JSON.parse(atob(storedData));
+        } catch (e) {
+          console.error("Erreur de décodage des données du localStorage", e);
+        }
+      }
+
+      // Priorité 2 : Charger depuis le hash si aucune donnée valide dans le localStorage
+      if (!data && location.hash) {
+        try {
+          const json = atob(location.hash.slice(1));
+          data = JSON.parse(json);
+        } catch (e) {
+          console.error("Erreur de décodage des données du hash", e);
+        }
+      }
+
+      // Si aucune donnée valide, ne rien faire
+      if (!data) return;
+
+      // Remplir le formulaire avec les données chargées
+      document.getElementById('date').value = data.d || today;
+      document.getElementById('wake').value = data.w || '';
+      document.getElementById('dayQuality').value = data.q || '';
+      document.getElementById('comment').value = data.c || '';
+
+      bottleList.innerHTML = '';
+      (data.bottles || []).forEach(b => {
+        addBottle(b.time, b.ml);
+      });
+      updateBottleTotal(); // Met à jour le total après le chargement des données
+
+      diaperList.innerHTML = '';
+      (data.diapers || []).forEach(d => {
+        addDiaper(d.time, d.poop);
+      });
+
+      napList.innerHTML = '';
+      (data.naps || []).forEach(n => {
+        addNap(n.start, n.end);
+      });
+      updateNapTotal(); // Met à jour le total après le chargement des données
+
+      mealList.innerHTML = '';
+      (data.meals || []).forEach(m => {
+        addMeal(m.time, m.type, m.weight);
+      });
+    }
+
+    // Charge les données depuis le localStorage ou le hash et les insère dans le formulaire
+    function loadDataAnotherDay() {
       let data = null;
 
       // Récupère la date du jour
