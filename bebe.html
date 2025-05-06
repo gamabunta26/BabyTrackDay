@@ -100,6 +100,7 @@
     const napList = document.getElementById('nap-list');
     const mealList = document.getElementById('meal-list');
 
+    // Ajoute une entrée pour un changement de couche dans la liste
     function addDiaper(time = '', poop = false) {
       const container = document.createElement('div');
       container.className = 'entry';
@@ -110,6 +111,7 @@
       diaperList.appendChild(container);
     }
 
+    // Ajoute une entrée pour une sieste dans la liste
     function addNap(start = '', end = '') {
       const container = document.createElement('div');
       container.className = 'entry';
@@ -120,6 +122,7 @@
       napList.appendChild(container);
     }
 
+    // Ajoute une entrée pour un repas solide dans la liste
     function addMeal(time = '', type = '', g = 0) {
       const div = document.createElement('div');
       div.className = 'entry';
@@ -130,6 +133,7 @@
       mealList.appendChild(div);
     }
 
+    // Encode les données saisies dans le formulaire en JSON, puis en base64
     function encodeData() {
       const d = document.getElementById('date').value;
       const w = document.getElementById('wake').value;
@@ -163,12 +167,11 @@
         };
       });
 
-
       const obj = { d, w, b, ml, q, c, diapers, naps, meals };
       return btoa(JSON.stringify(obj));
     }
 
-
+    // Génère un lien partageable contenant les données encodées
     function generateLink() {
       const hash = encodeData();
       const url = location.origin + location.pathname + '#' + hash;
@@ -179,7 +182,7 @@
       updateDaySummary();
     }
 
-
+    // Met à jour le résumé de la journée affiché à l'écran
     function updateDaySummary() {
       const date = document.getElementById('date').value;
       const wake = document.getElementById('wake').value;
@@ -206,13 +209,6 @@
 
       const summary = `
     <div style="font-size: 18px; line-height: 1.6;">
-      <!-- <strong>Date :</strong> ${date}<br>  -->
-      <!-- <strong>Heure de levée :</strong> ${wake || 'Non définie'}<br> -->
-      <!-- <strong>Heure du biberon :</strong> ${bottle || 'Non définie'}<br> -->
-      <!-- <strong>Quantité bue :</strong> ${ml} ml<br>   -->
-      <!-- <strong>Qualité de la journée :</strong> ${qualityText}<br>    -->
-      <!-- <strong>Commentaire :</strong> ${comment || 'Aucun'}<br><br> -->
-      
       <strong>Changements de couche :</strong><br>
       ${diapers.length > 0 ? diapers.join('<br>') : '<em>Aucun</em>'}<br><br>
 
@@ -221,14 +217,12 @@
 
       <strong>Repas solides :</strong><br>
       ${meals.length > 0 ? meals.join('<br>') : '<em>Aucune</em>'}
-      
-
     </div>
   `;
       document.getElementById('day-summary').innerHTML = summary;
     }
 
-
+    // Décode les données encodées en base64 depuis l'URL
     function decodeData() {
       if (!location.hash) return null;
       try {
@@ -240,8 +234,7 @@
       }
     }
 
-
-
+    // Charge les données depuis l'URL et les insère dans le formulaire
     function loadFromHash() {
       const data = decodeData();
       if (!data) return;
@@ -269,6 +262,7 @@
       });
     }
 
+    // Initialise la page en chargeant les données depuis l'URL ou en définissant la date actuelle
     window.onload = () => {
       const dateInput = document.getElementById('date');
       if (!location.hash && !dateInput.value) {
