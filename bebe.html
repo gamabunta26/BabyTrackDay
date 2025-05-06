@@ -99,7 +99,7 @@
     <h3>Résumé de la journée</h3>
     <p id="day-summary"></p>
   </div>
-  
+
   <script>
     const bottleList = document.getElementById('bottle-list');
     const diaperList = document.getElementById('diaper-list');
@@ -218,29 +218,34 @@
     function updateDaySummary() {
       const date = document.getElementById('date').value;
       const wake = document.getElementById('wake').value;
-      const bottle = document.getElementById('bottle').value;
-      const ml = document.getElementById('ml').value;
       const quality = document.getElementById('dayQuality').value;
       const qualityText = quality === '1' ? '😣 Difficile' : quality === '2' ? '😐 Moyenne' : quality === '3' ? '😊 Bonne' : 'Non défini';
       const comment = document.getElementById('comment').value;
 
+      const bottles = Array.from(bottleList.children).map(entry => {
+        const inputs = entry.querySelectorAll('input');
+        return `<strong>${inputs[0].value}</strong> : <strong>${inputs[1].value || '0'} ml</strong>`;
+      });
+
       const diapers = Array.from(diaperList.children).map(entry => {
         const inputs = entry.querySelectorAll('input');
-        return `<strong>${inputs[0].value}</strong>` + (inputs[1].checked ? ' <span style="color: red;">(avec caca)</span>' : '');
+        return `<strong>${inputs[0].value}</strong>` + (inputs[1].checked ? ' <span style="color: red;">(💩)</span>' : '');
       });
 
       const naps = Array.from(napList.children).map(entry => {
         const inputs = entry.querySelectorAll('input');
-        return `<strong>${inputs[0].value}</strong> - <strong>${inputs[1].value || 'Non définie'}</strong>`;
+        return `<strong>${inputs[0].value}</strong> <=> <strong>${inputs[1].value || 'Non définie'}</strong>`;
       });
 
       const meals = Array.from(mealList.children).map(entry => {
         const inputs = entry.querySelectorAll('input');
-        return `<strong>${inputs[0].value}</strong> - <strong>${inputs[1].value || 'Non définie'}</strong> - <strong>${inputs[2].value || 'Non définie'}g</strong>`;
+        return `<strong>${inputs[0].value}</strong> : <strong>${inputs[1].value || 'Non définie'}</strong> - <strong>${inputs[2].value || 'Non définie'}g</strong>`;
       });
 
       const summary = `
     <div style="font-size: 18px; line-height: 1.6;">
+      <strong>Biberon :</strong><br>
+      ${bottles.length > 0 ? bottles.join('<br>') : '<em>Aucun</em>'}<br><br>
       <strong>Changements de couche :</strong><br>
       ${diapers.length > 0 ? diapers.join('<br>') : '<em>Aucun</em>'}<br><br>
       <strong>Siestes :</strong><br>
