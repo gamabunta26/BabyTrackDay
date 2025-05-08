@@ -7,36 +7,109 @@
   <title>Suivi bébé</title>
   <style>
     body {
-      font-family: sans-serif;
+      font-family: 'Arial', sans-serif;
+      background-color: #f9f9f9;
+      color: #333;
       padding: 20px;
       max-width: 600px;
       margin: auto;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
     }
 
     h1 {
       text-align: center;
-    }
-
-    .section {
+      color: #4CAF50;
+      font-size: 24px;
       margin-bottom: 20px;
     }
 
-    .entry {
-      margin: 5px 0;
+    .section {
+      background-color: #fff;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
-    .inline {
-      display: inline-block;
+    .section h3 {
+      color: #4CAF50;
+      margin-bottom: 10px;
+    }
+
+    .entry {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .entry input,
+    .entry select,
+    .entry button {
       margin-right: 10px;
+      padding: 5px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
     }
 
     .entry button {
-      margin-left: 5px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .entry button:hover {
+      background-color: #45a049;
     }
 
     textarea {
       width: 100%;
       height: 80px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      padding: 10px;
+      resize: none;
+    }
+
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    input[type="time"],
+    input[type="date"],
+    input[type="number"],
+    select {
+      width: calc(100% - 20px);
+      padding: 8px;
+      margin-bottom: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    p {
+      font-size: 14px;
+      color: #666;
+    }
+
+    a {
+      color: #4CAF50;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
