@@ -111,6 +111,37 @@
     a:hover {
       text-decoration: underline;
     }
+
+    .link-container {
+      display: flex;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .link-container input {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 5px 0 0 5px;
+      font-size: 14px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .link-container button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 0 5px 5px 0;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .link-container button:hover {
+      background-color: #45a049;
+    }
   </style>
 </head>
 
@@ -164,8 +195,11 @@
   </div>
 
   <div class="section">
-    <button onclick="generateLink()">Générer le lien</button>
-    <p><a id="generatedLink" href="#" target="_blank"></a></p>
+    <button onclick="generateLink()">Save/Share</button>
+    <div class="link-container">
+      <input id="generatedLink" type="text" readonly>
+      <button onclick="copyLink()">Copier</button>
+    </div>
   </div>
 
   <!-- <div class="section">
@@ -208,7 +242,7 @@
       container.innerHTML = `
         <input type="time" value="${time}">
         <label><input type="checkbox" ${poop ? 'checked' : ''}> 💩</label>
-        <button onclick="this.parentElement.remove()">Supprimer</button>`;
+        <button onclick="this.parentElement.remove()">Suppr</button>`;
       diaperList.appendChild(container);
     }
 
@@ -220,7 +254,7 @@
       container.innerHTML = `
         <input type="time" value="${start}" onchange="updateNapTotal()"> - 
         <input type="time" value="${end}" onchange="updateNapTotal()">
-        <button onclick="this.parentElement.remove(); updateNapTotal()">Supprimer</button>`;
+        <button onclick="this.parentElement.remove(); updateNapTotal()">Suppr</button>`;
       napList.appendChild(container);
       updateNapTotal();
     }
@@ -313,10 +347,15 @@
       }
 
       const link = document.getElementById('generatedLink');
-      link.href = url;
-      link.textContent = url;
+      link.value = url;
 
       // updateDaySummary();
+    }
+
+    function copyLink() {
+      const link = document.getElementById('generatedLink');
+      link.select();
+      document.execCommand("copy");
     }
 
     // Met à jour le résumé de la journée affiché à l'écran
