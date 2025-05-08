@@ -48,7 +48,7 @@
     .entry select,
     .entry button {
       margin-right: 10px;
-      padding: 5px;
+      /* padding: 5px; */
       border: 1px solid #ddd;
       border-radius: 5px;
     }
@@ -63,6 +63,10 @@
 
     .entry button:hover {
       background-color: #45a049;
+    }
+
+    .labeltext {
+      margin-right: 10px;
     }
 
     textarea {
@@ -94,7 +98,7 @@
     select {
       width: calc(100% - 20px);
       padding: 8px;
-      margin-bottom: 10px;
+      /* margin-bottom: 10px; */
       border: 1px solid #ddd;
       border-radius: 5px;
     }
@@ -230,7 +234,8 @@
       const div = document.createElement('div');
       div.className = 'entry';
       div.innerHTML = `<input type="time" value="${time}">
-        <input type="number" min="0" step="30" value="${ml}" style="width: 60px;"> ml
+        <input type="number" min="0" step="30" value="${ml}" style="width: 60px;">
+        <span class="labeltext">ml</span>
         <button onclick="this.parentNode.remove()">Suppr</button>`;
       bottleList.appendChild(div);
       updateBottleTotal();
@@ -247,14 +252,15 @@
       diaperList.appendChild(container);
     }
 
-    
+
     // Ajoute une entrée pour une sieste dans la liste
     function addNap(start = '', end = '') {
       const container = document.createElement('div');
       container.className = 'entry';
       container.innerHTML = `
-        <input type="time" value="${start}" onchange="updateNapTotal()"> - 
-        <input type="time" value="${end}" onchange="updateNapTotal()">
+        <input type="time" value="${start}" onchange="updateNapTotal()"style="height: 20px;padding: 8px;">
+        <span class="labeltext" style="height: 20px;padding: 8px;">-</span> 
+        <input type="time" value="${end}" onchange="updateNapTotal()" style="height: 20px;padding: 8px;">
         <button onclick="this.parentElement.remove(); updateNapTotal()">Suppr</button>`;
       napList.appendChild(container);
       updateNapTotal();
@@ -280,12 +286,13 @@
     }
 
     // Ajoute une entrée pour un repas solide dans la liste
-    function addMeal(time = '', type = '', g = 0) {
+    function addMeal(time = '', type = 'purée de ', g = 0) {
       const div = document.createElement('div');
       div.className = 'entry';
-      div.innerHTML = `<input type="time" value="${time}">
-        <input type="text" placeholder="Type (purée...)" value="${type}">
-        <input type="number" min="0" step="10" value="${g}" style="width: 30px;"> g
+      div.innerHTML = `<input type="time" value="${time}" style="width: 80px;">
+        <input type="text" placeholder="Type (purée...)" value="${type}"  style="width: calc(100% - 20px);height: 20px;padding: 8px;">
+        <input type="number" min="0" step="10" value="${g}" style="width: 60px;height: 20px;">
+        <span class="labeltext" style="height: 20px;padding: 8px;">gr.</span>
         <button onclick="this.parentNode.remove()">Suppr</button>`;
       mealList.appendChild(div);
     }
@@ -359,49 +366,6 @@
       document.execCommand("copy");
     }
 
-    // Met à jour le résumé de la journée affiché à l'écran
-/*     function updateDaySummary() {
-      const date = document.getElementById('date').value;
-      const wake = document.getElementById('wake').value;
-      const quality = document.getElementById('dayQuality').value;
-      const qualityText = quality === '1' ? '😣 Difficile' : quality === '2' ? '😐 Moyenne' : quality === '3' ? '😊 Bonne' : 'Non défini';
-      const comment = document.getElementById('comment').value;
-
-      const bottles = Array.from(bottleList.children).map(entry => {
-        const inputs = entry.querySelectorAll('input');
-        return `<strong>${inputs[0].value}</strong> : <strong>${inputs[1].value || '0'} ml</strong>`;
-      });
-
-      const diapers = Array.from(diaperList.children).map(entry => {
-        const inputs = entry.querySelectorAll('input');
-        return `<strong>${inputs[0].value}</strong>` + (inputs[1].checked ? ' <span style="color: red;">(💩)</span>' : '');
-      });
-
-      const naps = Array.from(napList.children).map(entry => {
-        const inputs = entry.querySelectorAll('input');
-        return `<strong>${inputs[0].value}</strong> <=> <strong>${inputs[1].value || 'Non définie'}</strong>`;
-      });
-
-      const meals = Array.from(mealList.children).map(entry => {
-        const inputs = entry.querySelectorAll('input');
-        return `<strong>${inputs[0].value}</strong> : <strong>${inputs[1].value || 'Non définie'}</strong> - <strong>${inputs[2].value || 'Non définie'}g</strong>`;
-      });
-
-      const summary = `
-    <div style="font-size: 18px; line-height: 1.6;">
-      <strong>Biberon :</strong><br>
-      ${bottles.length > 0 ? bottles.join('<br>') : '<em>Aucun</em>'}<br><br>
-      <strong>Changements de couche :</strong><br>
-      ${diapers.length > 0 ? diapers.join('<br>') : '<em>Aucun</em>'}<br><br>
-      <strong>Siestes :</strong><br>
-      ${naps.length > 0 ? naps.join('<br>') : '<em>Aucune</em>'}<br><br>
-      <strong>Repas solides :</strong><br>
-      ${meals.length > 0 ? meals.join('<br>') : '<em>Aucune</em>'}
-    </div>
-  `;
-      // document.getElementById('day-summary').innerHTML = summary;
-    }
- */
     // Décode les données encodées en base64 depuis l'URL
     function decodeData() {
       if (!location.hash) return null;
