@@ -45,10 +45,14 @@ Les données saisies dans l'application sont organisées sous forme d'un objet J
 {
   "d": "2025-05-06",         // Date de la journée
   "w": "08:00",              // Heure de réveil
-  "b": "07:00",              // Heure du biberon
-  "ml": "210",               // Quantité bue (en ml)
   "q": "3",                  // Qualité de la journée (1 = Difficile, 2 = Moyenne, 3 = Bonne)
   "c": "Commentaire",        // Notes ou remarques
+  "bottles": [               // Liste des biberons
+    {
+      "time": "07:00",       // Heure du biberon
+      "ml": "210"            // Quantité bue (en ml)
+    }
+  ],
   "diapers": [               // Liste des changements de couche
     {
       "time": "08:00",       // Heure du changement
