@@ -43,7 +43,7 @@ Les données saisies dans l'application sont organisées sous forme d'un objet J
 
 ```json
 {
-  "d": "2025-05-06",          // Date de la journée
+  "d": "2025-05-06",         // Date de la journée
   "w": "08:00",              // Heure de réveil
   "b": "07:00",              // Heure du biberon
   "ml": "210",               // Quantité bue (en ml)

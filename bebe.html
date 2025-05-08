@@ -243,11 +243,11 @@
       link.href = url;
       link.textContent = url;
 
-      updateDaySummary();
+      // updateDaySummary();
     }
 
     // Met à jour le résumé de la journée affiché à l'écran
-    function updateDaySummary() {
+/*     function updateDaySummary() {
       const date = document.getElementById('date').value;
       const wake = document.getElementById('wake').value;
       const quality = document.getElementById('dayQuality').value;
@@ -288,7 +288,7 @@
   `;
       // document.getElementById('day-summary').innerHTML = summary;
     }
-
+ */
     // Décode les données encodées en base64 depuis l'URL
     function decodeData() {
       if (!location.hash) return null;
@@ -429,7 +429,7 @@
         dateInput.value = today;
       }
       loadData();
-      updateDaySummary();
+      // updateDaySummary();
     };
   </script>
 </body>
