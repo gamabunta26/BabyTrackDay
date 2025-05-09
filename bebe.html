@@ -160,7 +160,7 @@
   </div>
 
   <div class="section">
-    <h3>Biberon - Total : <span id="bottle-total">0</span> ml</h3>
+    <h3>Biberons : <span id="bottle-total"></span></h3>
     <div id="bottle-list"></div>
     <button onclick="addBottle()">Ajouter un biberon</button>
   </div>
@@ -172,7 +172,7 @@
   </div>
 
   <div class="section">
-    <h3>Siestes - Total : <span id="nap-total">0</span> heures</h3>
+    <h3>Siestes : <span id="nap-total"></span></h3>
     <div id="nap-list"></div>
     <button onclick="addNap()">Ajouter une sieste</button>
   </div>
@@ -226,7 +226,7 @@
         const mlInput = entry.querySelector('input[type="number"]');
         return sum + (parseInt(mlInput.value) || 0);
       }, 0);
-      document.getElementById('bottle-total').textContent = total;
+      document.getElementById('bottle-total').textContent = "(Total : "+total+"ml )";
     }
 
 
@@ -288,7 +288,7 @@
       const minutes = totalMinutes % 60;
 
       // Afficher le total au format "XhYY"
-      document.getElementById('nap-total').textContent = `${hours}h${minutes.toString().padStart(2, '0')}`;
+      document.getElementById('nap-total').textContent = ` (Total ${hours}h${minutes.toString().padStart(2, '0')})`;
     }
 
     // Ajoute une entrée pour un repas solide dans la liste
