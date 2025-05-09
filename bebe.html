@@ -155,7 +155,8 @@
 
 
   <div class="section">
-    <h3>Heure de levée : <input type="time" id="wake"></h3><br>
+    <h3>Heure de levée : </h3>
+    <input type="time" id="wake">
   </div>
 
   <div class="section">
@@ -165,7 +166,7 @@
   </div>
 
   <div class="section">
-    <h3>Changements de couche</h3>
+    <h3>Changements de couche :</h3>
     <div id="diaper-list"></div>
     <button onclick="addDiaper()">Ajouter un change</button>
   </div>
@@ -183,7 +184,7 @@
   </div>
 
   <div class="section">
-    <h3>Qualité de la journée</h3>
+    <h3>Qualité de la journée :</h3>
     <label>
       <select id="dayQuality">
         <option value="">-- Sélectionner --</option>
@@ -195,7 +196,7 @@
   </div>
 
   <div class="section">
-    <h3>Commentaire</h3>
+    <h3>Commentaires :</h3>
     <textarea id="comment" placeholder="Notes ou remarques..."></textarea>
   </div>
 
@@ -268,7 +269,7 @@
 
     // Met à jour le total des siestes
     function updateNapTotal() {
-      const total = Array.from(napList.children).reduce((sum, entry) => {
+      const totalMinutes = Array.from(napList.children).reduce((sum, entry) => {
         const inputs = entry.querySelectorAll('input[type="time"]');
         const start = inputs[0].value;
         const end = inputs[1].value;
@@ -276,13 +277,18 @@
         if (start && end) {
           const startTime = new Date(`1970-01-01T${start}:00`);
           const endTime = new Date(`1970-01-01T${end}:00`);
-          const duration = (endTime - startTime) / (1000 * 60 * 60); // Convertir en heures
+          const duration = (endTime - startTime) / (1000 * 60); // Convertir en minutes
           return sum + (duration > 0 ? duration : 0); // Ajouter uniquement les durées positives
         }
         return sum;
       }, 0);
 
-      document.getElementById('nap-total').textContent = total.toFixed(2); // Afficher avec 2 décimales
+      // Convertir les minutes totales en heures et minutes
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+
+      // Afficher le total au format "XhYY"
+      document.getElementById('nap-total').textContent = `${hours}h${minutes.toString().padStart(2, '0')}`;
     }
 
     // Ajoute une entrée pour un repas solide dans la liste
