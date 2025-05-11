@@ -70,7 +70,7 @@
     }
 
     textarea {
-      width: 100%;
+      width: calc(100% - 20px);
       height: 80px;
       border: 1px solid #ddd;
       border-radius: 5px;
@@ -146,6 +146,56 @@
 
     .link-container button:hover {
       background-color: #45a049;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 34px;
+      height: 20px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: 0.4s;
+      border-radius: 20px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 14px;
+      width: 14px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: 0.4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: #4CAF50;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(14px);
+    }
+
+    .poop-icon {
+      margin-left: 10px;
+      font-size: 18px;
     }
   </style>
 </head>
@@ -248,11 +298,14 @@
       container.className = 'entry';
       container.innerHTML = `
         <input type="time" value="${time}">
-        <label><input type="checkbox" ${poop ? 'checked' : ''}> 💩</label>
+        <label class="switch">
+          <input type="checkbox" onchange="togglePoopIcon(this)" ${poop ? 'checked' : ''}>
+          <span class="slider"></span>
+        </label>
+        <span class="poop-icon" style="display: ${poop ? 'inline' : 'none'};">💩</span>
         <button onclick="this.parentElement.remove()">Suppr</button>`;
       diaperList.appendChild(container);
     }
-
 
     // Ajoute une entrée pour une sieste dans la liste
     function addNap(start = '', end = '') {
@@ -514,7 +567,14 @@
       loadData();
       // updateDaySummary();
     };
+
+    // Affiche ou masque l'icône 💩 en fonction de l'état de la checkbox
+    function togglePoopIcon(checkbox) {
+      const poopIcon = checkbox.parentElement.nextElementSibling;
+      poopIcon.style.display = checkbox.checked ? 'inline' : 'none';
+    }
   </script>
 </body>
 
 </html>
+``` 
